@@ -30,6 +30,10 @@ const createWindow = () => {
     readFile();
   });
 
+  ipcMain.on("btn-delete-file-clicked", (event, data) => {
+    deleteFile();
+  });
+
   const initialisation = () => {
     //at first create files to be manipulated
     fs.writeFile("files/file1.txt", "Content of the file 1", function (err) {
@@ -40,9 +44,19 @@ const createWindow = () => {
       if (err) throw err;
       console.log("file2 created");
     });
+
+    fs.writeFile(
+      "files/file_to_delete.txt",
+      "Content of the file tp delete",
+      function (err) {
+        if (err) throw err;
+        console.log("file_to_delete created");
+      }
+    );
   };
 
   initialisation();
+
   const readFile = () => {
     const files = dialog.showOpenDialogSync(mainWindow, {
       properties: ["openFile"],
@@ -59,6 +73,13 @@ const createWindow = () => {
     const file = files[0];
     const fileContent = fs.readFileSync(file).toString();
     mainWindow.webContents.send("file-read", fileContent);
+  };
+
+  const deleteFile = () => {
+    fs.unlink("files/file_to_delete.txt", function (err) {
+      if (err) throw err;
+      console.log("File deleted!");
+    });
   };
 };
 
